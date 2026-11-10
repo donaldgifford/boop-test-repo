@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 # Multi-stage build: small distroless image, cached module + build layers.
 
-FROM golang:1.26.8 AS build
+FROM golang:1.26.8@sha256:eb36c1664dd974cde625f736e02c204383deebe03977365caaec5bf49f794348 AS build
 WORKDIR /src
 COPY go.* ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
       -ldflags="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.date=${DATE}" \
       -o /out/boop-test-repo ./cmd/boop-test-repo
 
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
 COPY --from=build /out/boop-test-repo /usr/local/bin/boop-test-repo
 USER nonroot:nonroot
 ENTRYPOINT ["/usr/local/bin/boop-test-repo"]
